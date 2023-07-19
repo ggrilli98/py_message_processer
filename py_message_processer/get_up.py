@@ -34,7 +34,7 @@ class get_up(Node):
 
     def send_pick_up_movement(self):
         geom_values = Float32MultiArray()
-        geom_values.data = [35.0, 80.0, 0.0, 0.0, 0.0]
+        geom_values.data = [35.0, 80.0, 15.0, 0.0, 0.0]
         self.publisher_geometrical.publish(geom_values)
         print("mandato valori", geom_values.data)
 
