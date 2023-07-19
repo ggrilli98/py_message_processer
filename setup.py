@@ -20,9 +20,12 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [   [
-                'spreader controller = py_message_processer.Speaker_node:main',
+                'spreader_controller = py_message_processer.Speaker_node:main',
                 'processer = py_message_processer.Talkback_node:main',
-                'geometrical_transformer = py_message_processer.joint_modeler:main',
+                'joint_transformer = py_message_processer.joint_modeler:main',
+                'get_up = py_message_processer.get_up:main',
+                'pick_up = py_message_processer.pick_up:main',
+                 
         ],
         ],
     },

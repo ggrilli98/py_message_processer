@@ -34,17 +34,17 @@ class get_up(Node):
 
     def send_pick_up_movement(self):
         geom_values = Float32MultiArray()
-        geom_values.data = [35.0, 80.0, 15.0, 0.0, 0.0]
-        self.publisher_geometrical.publish(geom_values)
+        geom_values.data = [35, 120, 0, 0, 0]
+        self.get_up_publisher.publish(geom_values)
         print("mandato valori", geom_values.data)
 
     
 
 def main(args=None):
     rclpy.init(args=args)
-    spreader_msg_publisher = get_up()
-    rclpy.spin(spreader_msg_publisher)
-    spreader_msg_publisher.destroy_node()
+    get_up_pub = get_up()
+    rclpy.spin(get_up_pub)
+    get_up_pub.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':

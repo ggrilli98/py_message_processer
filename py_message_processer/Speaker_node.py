@@ -29,7 +29,7 @@ class Spreadercontroller(Node):
 
         # PUBLISHERS
         self.publisher_spreader = self.create_publisher(ECSpreaderControl, '/reachstacker/spreader_control', 10)
-        self.publisher_geometrical = self.create_publisher(Float32MultiArray, 'geom_values', 10)
+        self.publisher_geometrical = self.create_publisher(Float32MultiArray, 'reachstacker_geom_values', 10)
 
         #SUBSCRIBERS
         self.spreader_stops_sub = self.create_subscription(ECSpreaderStatus, 'reachstacker/spreader_status', self.spreader_limitswitches_callback, 10)
@@ -146,9 +146,6 @@ class Spreadercontroller(Node):
         # print('forward',spreader_command.forward)
         # print('backward',spreader_command.backward)
 
-    
-
-
 
     # STUFF FOR THE KINEMATICS AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAS
 
@@ -161,22 +158,7 @@ class Spreadercontroller(Node):
                 self.publisher_geometrical.publish(geom_values)
                 print("mandato valori", geom_values.data)
                 time.sleep(0.05)
-            self.killer_geometrical_values = True
-
-    # PUBLISHER OF THE VELOCITY VALUES
-
-
-
-
-
-
-
-
-
-
-
-            
-    
+            self.killer_geometrical_values = True   
 
 def main(args=None):
     rclpy.init(args=args)

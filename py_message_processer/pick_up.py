@@ -36,24 +36,25 @@ class pick_upper(Node):
     def send_pick_up_movement(self):
         geom_values = Float32MultiArray()
         geom_values.data = [0.0, 250.0, 0.0, 0.0, 0.0]
-        self.publisher_geometrical.publish(geom_values)
+        self.pick_up_publisher.publish(geom_values)
         print("mandato valori", geom_values.data)
         spreader_command = ECSpreaderControl()
         spreader_command.header.stamp = self.get_clock().now().to_msg()
         spreader_command.enable_brake = [True, True, True, True, True, True, True, True]
         spreader_command.forward = [False, False, False, False, False, False, False, True]
         spreader_command.backward = [True, True, True, True, True, True, False, False]
-        spreader_command.speed = [255, 255, 255, 255, 255, 255, 0.0, 255.0]
+        spreader_command.speed = [255, 255, 255, 255, 255, 255, 0, 255]
         spreader_command.magnet = False
+        self.publisher_spreader.publish(spreader_command)
 
 
     
 
 def main(args=None):
     rclpy.init(args=args)
-    spreader_msg_publisher = pick_upper()
-    rclpy.spin(spreader_msg_publisher)
-    spreader_msg_publisher.destroy_node()
+    pick_up_pub = pick_upper()
+    rclpy.spin(pick_up_pub)
+    pick_up_pub.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':

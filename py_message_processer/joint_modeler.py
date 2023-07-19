@@ -4,6 +4,7 @@ from rclpy.node import Node
 from rclpy.parameter import Parameter
 from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
+from control_msgs.msg import JointJog
 from random import uniform
 import time
 import numpy as np
@@ -128,14 +129,21 @@ class joint_modeler_node_type(Node):
 
         # VARIABLES for robot-real-data parallel time elaboration
         self.w01_0_real = 0.0
-
-
+      
+        # coefficients for transformation between encoder and real values
+        self.axis_coefficients_encoder_to_real = [ 0.278688524590164, 0.974258133714694, 0.865384615384615, 1.0, 0.1] 
+        # intercepts for the linear interpolation
+        self.axis_intercepts_encoder_to_real = [ 0.0, -0.6, -20.0, 0.0, 0.0]
+        # coefficients for transformation between real values and encoder
+        self.axis_coefficients_geometrical_to_encoder = [3.58823529411765, 1.02642201834862, 1.15555555555556, 1.0, 10.0]
+        # intercepts for the linear interpolation
+        self.axis_intercepts_geometrical_to_encoder = [-1.0, +0.6, -1.0, -2.0, 0.0] 
         # Timers
         self.timer_plot = self.create_timer(1, self.plot_3d_data)
 
         # Subscribers
         self.geom_subsc = self.create_subscription(Float32MultiArray, 'geom_values', self.geom_values_callback, 10)
-        self.reach_vel_subsc = self.create_subscription(Float32MultiArray, '/reachstacker/joint_jog', self.vel_values_callback, 10)
+        self.reach_vel_subsc = self.create_subscription(JointJog, '/reachstacker/joint_jog', self.real_val_encoder_callback, 10)
 
         # Publishers for the plotjuggler plot
         self.plotjuggler_O0_publisher = self.create_publisher(Float32MultiArray, 'O0_position', 10)
@@ -408,7 +416,7 @@ class joint_modeler_node_type(Node):
         # ACCELERATIONS CALCULATIONS TO IMPLEMENT IF I HAVE TIME
 
 
-    def vel_values_callback(self, msg):
+    def real_val_encoder_callback(self, msg):
         self.w01_0_real = msg.velocities[3]
 
 
