@@ -35,7 +35,7 @@ class pick_upper(Node):
 
     def send_pick_up_movement(self):
         geom_values = Float32MultiArray()
-        geom_values.data = [21.44, 251.209, 16.0, 0.0, 0.0]
+        geom_values.data = [5.9750, 244.142, 16.34, 0.0, 0.0]
         self.pick_up_publisher.publish(geom_values)
         print("mandato valori", geom_values.data)
         spreader_command = ECSpreaderControl()

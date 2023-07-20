@@ -29,7 +29,7 @@ class Spreadercontroller(Node):
 
         # PUBLISHERS
         self.publisher_spreader = self.create_publisher(ECSpreaderControl, '/reachstacker/spreader_control', 10)
-        self.publisher_geometrical = self.create_publisher(Float32MultiArray, 'reachstacker_geom_values', 10)
+        self.publisher_geometrical = self.create_publisher(Float32MultiArray, 'reachstacker_geom_goals', 10)
 
         #SUBSCRIBERS
         self.spreader_stops_sub = self.create_subscription(ECSpreaderStatus, 'reachstacker/spreader_status', self.spreader_limitswitches_callback, 10)
@@ -43,10 +43,10 @@ class Spreadercontroller(Node):
 
         # VARIABLES for the geometrical transformer 
         # 100 point interpolation 
-        self.boom_tilt_deg = np.linspace(0.0, 50.0, 100)
-        self.boom_extension_mm = np.linspace(0.0, 500.0, 100)
-        self.spreader_pitch_deg = np.linspace(0.0, -50.0, 100)
-        self.spreader_yaw_deg = np.linspace(-90.0, 1170.0, 100)
+        self.boom_tilt_deg = np.linspace(15.0, 33.0, 100)
+        self.boom_extension_mm = np.linspace(0.0, 186.0, 100)
+        self.spreader_pitch_deg = np.linspace(0.0, -16.0, 100)
+        self.spreader_yaw_deg = np.linspace(0.0, 0.0, 100)
         self.spreader_translation_mm = np.linspace(-5.0, 5.0, 100)
         self.killer_geometrical_values = False
 
@@ -63,10 +63,10 @@ class Spreadercontroller(Node):
         
     # SCRIPT TO CHECK THE VALUES OF THE E-STOPS
     def spreader_limitswitches_callback(self, msg):
-        for i in enumerate(msg.min_stop):
+        for i in range(8):
             self.minimum_limitswitches[i] = msg.min_stop[i]
             self.maximum_limitswitches[i] = msg.max_stop[i]
-            if self.minimum_limitswitches[7] == True or self.maximum_limiswitches[7] == True:
+            if self.minimum_limitswitches[7] == True or self.maximum_limitswitches[7] == True:
                 print('limitswitches triggered')
 
 
@@ -157,7 +157,7 @@ class Spreadercontroller(Node):
                 geom_values.data = [self.boom_tilt_deg[i], self.boom_extension_mm[i], self.spreader_pitch_deg[i], self.spreader_yaw_deg[i], self.spreader_translation_mm[i], self.w0_0_deg, self.w3_3_deg, self.w5_5_deg]         
                 self.publisher_geometrical.publish(geom_values)
                 print("mandato valori", geom_values.data)
-                time.sleep(0.05)
+                time.sleep(0.2)
             self.killer_geometrical_values = True   
 
 def main(args=None):

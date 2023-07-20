@@ -34,9 +34,17 @@ class get_up(Node):
 
     def send_pick_up_movement(self):
         geom_values = Float32MultiArray()
-        geom_values.data = [123.0, 224.0, 45.52, 0, 0]
+        geom_values.data = [34.2786, 217.633, 44.73076, 0.0, 0.0]
         self.get_up_publisher.publish(geom_values)
         print("mandato valori", geom_values.data)
+        spreader_command = ECSpreaderControl()
+        spreader_command.header.stamp = self.get_clock().now().to_msg()
+        spreader_command.enable_brake = [True, True, True, True, True, True, True, True]
+        spreader_command.forward = [True, True, True, True, True, True, False, True]
+        spreader_command.backward = [False, False, False, False, False, False, False, False]
+        spreader_command.speed = [255, 255, 255, 255, 255, 255, 0, 255]
+        spreader_command.magnet = False
+        self.publisher_spreader.publish(spreader_command)
 
     
 
