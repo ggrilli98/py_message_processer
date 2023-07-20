@@ -131,11 +131,11 @@ class joint_modeler_node_type(Node):
         self.w01_0_real = 0.0
       
         # coefficients for transformation between encoder and real values
-        self.axis_coefficients_encoder_to_real = [ 0.278688524590164, 0.974258133714694, 0.865384615384615, 1.0, 0.1] 
+        self.axis_coefficients_encoder_to_real = [ 0.278688524590164, 0.974258133714694, 0.961538, 1.0, 0.1] 
         # intercepts for the linear interpolation
-        self.axis_intercepts_encoder_to_real = [ 0.0, -0.6, -20.0, 0.0, 0.0]
+        self.axis_intercepts_encoder_to_real = [ 0.0, -0.6, 0.0, 0.0, 0.0]
         # coefficients for transformation between real values and encoder
-        self.axis_coefficients_geometrical_to_encoder = [3.58823529411765, 1.02642201834862, 1.15555555555556, 1.0, 10.0]
+        self.axis_coefficients_geometrical_to_encoder = [3.58823529411765, 1.02642201834862, 1.04, 1.0, 10.0]
         # intercepts for the linear interpolation
         self.axis_intercepts_geometrical_to_encoder = [-1.0, +0.6, -1.0, -2.0, 0.0] 
         # Timers
@@ -188,7 +188,14 @@ class joint_modeler_node_type(Node):
         return Skew_matrix
 
     # FORWARD KINEMATICS from data recevied by message in mm and deg
-    def geom_values_callback(self, msg):
+    def real_val_encoder_callback(self, msg):
+
+        # getting values from the messages
+        self.boom_angle_deg =  msg.position[6] # Axis 3 is the sixth in the jointstate message array 
+        self.boom_extension_mm =  msg.position[4] # Axis 4 is the fourth in the jointstate message array
+        self.spreader_pitch_deg = msg.position[5] # Axis 5 is the fifth in the jointstate message array
+        self.spreader_yaw_deg = msg.position[3] -math.pi/2 # Axis 6 is the third in the jointstate message array  -math.pi/2  #ATTENTION, OUR SPREADER THINKS TO BE ROTATED BY 90 RESPECT TO THE ORIGINAL Z_7 AXIS
+        self.spreader_translation_mm = msg.position[7] # Axis 7 is the seventth in the jointstate message array
 
         # getting values from the messages
         self.boom_angle_deg = msg.data[0]/360*2*math.pi
@@ -414,14 +421,6 @@ class joint_modeler_node_type(Node):
         self.plotjuggler_vel_publisher.publish(vel_message) 
 
         # ACCELERATIONS CALCULATIONS TO IMPLEMENT IF I HAVE TIME
-
-
-    def real_val_encoder_callback(self, msg):
-        self.w01_0_real = msg.velocities[3]
-
-
-
-
 
     # Creating the plot of all the origin points of our coordinate systems, avoiding the repetivive (coincident) ones
     def plot_3d_data(self):

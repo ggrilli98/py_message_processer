@@ -29,13 +29,13 @@ class pick_upper(Node):
 
 
         self.timer_send = self.create_timer(3, self.send_pick_up_movement)
-        self.pick_up_publisher = self.create_publisher(Float32MultiArray, 'reachstacker_geom_values', 10) 
+        self.pick_up_publisher = self.create_publisher(Float32MultiArray, 'reachstacker_geom_goals', 10) 
         self.publisher_spreader = self.create_publisher(ECSpreaderControl, '/reachstacker/spreader_control', 10)
 
 
     def send_pick_up_movement(self):
         geom_values = Float32MultiArray()
-        geom_values.data = [0.0, 250.0, 0.0, 0.0, 0.0]
+        geom_values.data = [21.44, 251.209, 16.0, 0.0, 0.0]
         self.pick_up_publisher.publish(geom_values)
         print("mandato valori", geom_values.data)
         spreader_command = ECSpreaderControl()
