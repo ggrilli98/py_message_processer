@@ -43,11 +43,11 @@ class Spreadercontroller(Node):
 
         # VARIABLES for the geometrical transformer 
         # 100 point interpolation 
-        self.boom_tilt_deg = np.linspace(15.0, 33.0, 100)
-        self.boom_extension_mm = np.linspace(0.0, 186.0, 100)
-        self.spreader_pitch_deg = np.linspace(0.0, -16.0, 100)
+        self.boom_tilt_deg = np.linspace(20.0, 20.0, 100)
+        self.boom_extension_mm = np.linspace(186.0, 186.0, 100)
+        self.spreader_pitch_deg = np.linspace(-16.0, -16.0, 100)
         self.spreader_yaw_deg = np.linspace(0.0, 0.0, 100)
-        self.spreader_translation_mm = np.linspace(-5.0, 5.0, 100)
+        self.spreader_translation_mm = np.linspace(5.0, 5.0, 100)
         self.killer_geometrical_values = False
 
         # VARIABLES for the velocity transformer
