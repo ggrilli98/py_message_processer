@@ -86,6 +86,7 @@ class joint_modeler_node_type(Node):
         self.i = 0
 
         #Variables that will be grabbed from the received messages
+        self.encoder_values_received = [0.0]*5
         self.boom_angle_deg = 0.0                                   # X axis roation of the boom
         self.boom_extension_mm = 0.0                                # Y axis extension of the boom
         self.spreader_pitch_deg = 0.0                               # X axis rotation of the spreader
@@ -131,11 +132,11 @@ class joint_modeler_node_type(Node):
         self.w01_0_real = 0.0
       
         # coefficients for transformation between encoder and real values
-        self.axis_coefficients_encoder_to_real = [ 0.278688524590164, 0.974258133714694, 0.865384615384615, 1.0, 0.1] 
+        self.axis_coefficients_encoder_to_geometrical = [0.278688524590164, 0.974258133714694, -0.9615, 1.0, 0.1] 
         # intercepts for the linear interpolation
-        self.axis_intercepts_encoder_to_real = [ 0.0, -0.6, -20.0, 0.0, 0.0]
+        self.axis_intercepts_encoder_to_geometrical = [ 0.27869, -0.5864, -0.9615, 2.0, 0.0]
         # coefficients for transformation between real values and encoder
-        self.axis_coefficients_geometrical_to_encoder = [3.58823529411765, 1.02642201834862, 1.15555555555556, 1.0, 10.0]
+        self.axis_coefficients_geometrical_to_encoder = [3.58823529411765, 1.02642201834862, -1.04, 1.0, 10.0]
         # intercepts for the linear interpolation
         self.axis_intercepts_geometrical_to_encoder = [-1.0, +0.6, -1.0, -2.0, 0.0] 
 
@@ -154,6 +155,21 @@ class joint_modeler_node_type(Node):
         self.plotjuggler_O7_publisher = self.create_publisher(Float32MultiArray, 'O7_position', 10)
         self.plotjuggler_O8_publisher = self.create_publisher(Float32MultiArray, 'O8_position', 10)
         self.plotjuggler_vel_publisher = self.create_publisher(Float32MultiArray, 'velocity', 10)
+
+    def encoder_from_geom_array_transformer(self, geom_value_array):
+        encoder_value_array = [0.0]*5
+        print('diocane')
+        for i in range(5):
+            encoder_value_array[i] =  geom_value_array[i] * self.axis_coefficients_geometrical_to_encoder[i] + self.axis_intercepts_geometrical_to_encoder[i] 
+        return(encoder_value_array)
+    
+    def geom_from_encoder_array_transformer(self, encoder_value_array):
+        print('diomerda')
+        geom_value_array = [0.0]*5
+        for i in range(5):
+            geom_value_array[i] = encoder_value_array[i] * self.axis_coefficients_encoder_to_geometrical[i] + self.axis_intercepts_encoder_to_geometrical[i]
+        return(geom_value_array)
+
 
     # Homogeneous transformations definitons
     def Homogen_transf(self, R_XYZ, vector):
@@ -191,18 +207,28 @@ class joint_modeler_node_type(Node):
     # FORWARD KINEMATICS from data recevied by message in mm and deg
     def real_val_encoder_callback(self, msg):
 
-        # getting values from the messages
-        self.boom_angle_deg =  (msg.position[6] * self.axis_coefficients_encoder_to_real[0] + self.axis_intercepts_encoder_to_real[0])/360*2*math.pi# Axis 3 is the sixth in the jointstate message array 
-        self.boom_extension_mm =  msg.position[4] * self.axis_coefficients_encoder_to_real[1] + self.axis_intercepts_encoder_to_real[1]# Axis 4 is the fourth in the jointstate message array
-        self.spreader_pitch_deg = (msg.position[5] * self.axis_coefficients_encoder_to_real[2] + self.axis_intercepts_encoder_to_real[2])/360*2*math.pi# Axis 5 is the fifth in the jointstate message array
-        self.spreader_yaw_deg = (msg.position[3] * self.axis_coefficients_encoder_to_real[3] + self.axis_intercepts_encoder_to_real[3])/360*2*math.pi -math.pi/2 # Axis 6 is the third in the jointstate message array  -math.pi/2  #ATTENTION, OUR SPREADER THINKS TO BE ROTATED BY 90 RESPECT TO THE ORIGINAL Z_7 AXIS
-        self.spreader_translation_mm = msg.position[7] * self.axis_coefficients_encoder_to_real[4] + self.axis_intercepts_encoder_to_real[4]# Axis 7 is the seventth in the jointstate message array
-        print(self.boom_angle_deg)
+        # getting values from the jointstate messages
+        # self.boom_angle_deg =  (msg.position[6] * self.axis_coefficients_encoder_to_geometrical[0] + self.axis_intercepts_encoder_to_geometrical[0])/360*2*math.pi# Axis 3 is the sixth in the jointstate message array 
+        # self.boom_extension_mm =  (msg.position[4] * self.axis_coefficients_encoder_to_geometrical[1] + self.axis_intercepts_encoder_to_geometrical[1])# Axis 4 is the fourth in the jointstate message array
+        # self.spreader_pitch_deg = (msg.position[5] * self.axis_coefficients_encoder_to_geometrical[2] + self.axis_intercepts_encoder_to_geometrical[2])/360*2*math.pi# Axis 5 is the fifth in the jointstate message array
+        # self.spreader_yaw_deg = (msg.position[3] * self.axis_coefficients_encoder_to_geometrical[3] + self.axis_intercepts_encoder_to_geometrical[3])/360*2*math.pi -math.pi/2 # Axis 6 is the third in the jointstate message array  -math.pi/2  #ATTENTION, OUR SPREADER THINKS TO BE ROTATED BY 90 RESPECT TO THE ORIGINAL Z_7 AXIS
+        # self.spreader_translation_mm = msg.position[7] * self.axis_coefficients_encoder_to_geometrical[4] + self.axis_intercepts_encoder_to_geometrical[4]# Axis 7 is the seventth in the jointstate message array
 
-        
+        self.encoder_values_received[0] = msg.position[6] # Axis 3 is the sixth in the jointstate message array 
+        self.encoder_values_received[1] = msg.position[4] # Axis 4 is the fourth in the jointstate message array
+        self.encoder_values_received[2] = msg.position[5] # Axis 5 is the fifth in the jointstate message array
+        self.encoder_values_received[3] = msg.position[3] # Axis 6 is the third in the jointstate message array  -math.pi/2  #ATTENTION, OUR SPREADER THINKS TO BE ROTATED BY 90 RESPECT TO THE ORIGINAL Z_7 AXIS
+        self.encoder_values_received[4] = msg.position[7] # Axis 7 is the seventth in the jointstate message array
 
+        self.geom_values_received = self.geom_from_encoder_array_transformer(self.encoder_values_received) #transforming the encoder values into the geometrical (mm, deg) values
 
-        # # getting values from the messages
+        self.boom_angle_deg = self.geom_values_received[0]/360*2*math.pi # REMEMBER THAT ROS2 USES RADIANTS  
+        self.boom_extension_mm =  self.geom_values_received[1]
+        self.spreader_pitch_deg = self.geom_values_received[2]/360*2*math.pi
+        self.spreader_yaw_deg = self.geom_values_received[3]/360*2*math.pi -math.pi/2  #ATTENTION, OUR SPREADER THINKS TO BE ROTATED BY 90 RESPECT TO THE ORIGINAL Z_7 AXIS
+        self.spreader_translation_mm = self.geom_values_received[4]
+
+        # getting values from the fake messages
         # self.boom_angle_deg = msg.data[0]/360*2*math.pi
         # self.boom_extension_mm =  msg.data[1]
         # self.spreader_pitch_deg = msg.data[2]/360*2*math.pi
