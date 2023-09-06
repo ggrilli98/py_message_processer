@@ -146,7 +146,7 @@ class joint_modeler_node_type(Node):
         # Subscribers
         self.geom_subsc = self.create_subscription(Float32MultiArray, 'geom_values', self.geom_values_callback, 10)
         # self.reach_vel_subsc = self.create_subscription(JointState, '/reachstacker/joint_state', self.real_val_encoder_callback, 10)
-        self.reach_vel_subsc = self.create_subscription(Float32MultiArray, 'calculated_joints_values_inverse_kin', self.real_val_encoder_callback, 10)
+        self.reach_vel_subsc = self.create_subscription(Float32MultiArray, 'geom_values_check', self.real_val_encoder_callback, 10)
 
 
         # Publishers for the plotjuggler plot
@@ -224,11 +224,13 @@ class joint_modeler_node_type(Node):
         # self.spreader_translation_mm = self.geom_values_received[4]
 
         # FOR TESTING AGAINST THE URDF MODEL
-        self.boom_angle_deg = msg.data[0]
-        self.boom_extension_mm =  msg.data[1]*1000
-        self.spreader_pitch_deg = msg.data[2]
-        self.spreader_yaw_deg = msg.data[3] -math.pi/2  #ATTENTION, OUR SPREADER THINKS TO BE ROTATED BY 90 RESPECT TO THE ORIGINAL Z_7 AXIS
-        self.spreader_translation_mm = msg.data[4]*1000
+        self.boom_angle_deg = msg.data[0]/360*2*math.pi
+        self.boom_extension_mm =  msg.data[1]
+        self.spreader_pitch_deg = msg.data[2]/360*2*math.pi
+        self.spreader_yaw_deg = msg.data[3]/360*2*math.pi -math.pi/2  #ATTENTION, OUR SPREADER THINKS TO BE ROTATED BY 90 RESPECT TO THE ORIGINAL Z_7 AXIS
+        self.spreader_translation_mm = msg.data[4]
+
+        print('received', msg.data)
 
         # getting values from the fake messages
         # self.boom_angle_deg = msg.data[0]/360*2*math.pi
